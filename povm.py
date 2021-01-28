@@ -342,10 +342,11 @@ def LoadData(Nq, fname):
 
 
 def GenerateData(gen, Ns, fname):
-
-    print('Generating data: %s'%fname)
-    
-    data = gen.samples(Ns=Ns)
-
-    np.save(fname, data)
+    if os.path.isfile(fname):
+        print('Loading data: %s'%fname)
+        data = np.load(fname)
+    else:
+        print('Generating data: %s'%fname)
+        data = gen.samples(Ns=Ns)
+        np.save(fname, data)
     return data
