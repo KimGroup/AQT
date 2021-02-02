@@ -19,47 +19,54 @@ povm = POVM('pauli6')
 Na = povm.Na
 
 # GHZ state density matrix
-Ne = 4
-rhoKB = np.zeros((Ne, 2*Nq), dtype=int)
-rhoAmp = np.zeros((Ne), dtype=complex)
+# Ne = 4
+# rhoKB = np.zeros((Ne, 2*Nq), dtype=int)
+# rhoAmp = np.zeros((Ne), dtype=complex)
 
-rhoKB[1, :] = 1
-rhoKB[2, :Nq] = 1
-rhoKB[3, Nq:] = 1
+# rhoKB[1, :] = 1
+# rhoKB[2, :Nq] = 1
+# rhoKB[3, Nq:] = 1
 
-rhoAmp[0] = 0.5
-rhoAmp[1] = 0.5
-rhoAmp[2] = 0.5
-rhoAmp[3] = np.conj(rhoAmp[2])
-
-
-density = {}
-density['KB'] = rhoKB
-density['Amp'] = rhoAmp
+# rhoAmp[0] = 0.5
+# rhoAmp[1] = 0.5
+# rhoAmp[2] = 0.5
+# rhoAmp[3] = np.conj(rhoAmp[2])
 
 
-ghz = SampleDM(Nq, povm, density)
+# density = {}
+# density['KB'] = rhoKB
+# density['Amp'] = rhoAmp
 
 
-# Data
-Ns = 40000
-data_fname = 'data/ghz-sim-Pauli6-Nq%i-Ns%i.npy'%(Nq, Ns)
-data = np.load(data_fname)
+# ghz = SampleDM(Nq, povm, density)
 
-traindata = data[:int(len(data)*split)]
-testdata = data[int(len(data)*split):]
+
+tag = 'errorscaling/ghz-errorscaling'
 
 # Initialize
 print('Using cuda:%i'%(int(sys.argv[1])))
 device = torch.device("cuda:%i"%(int(sys.argv[1])))
 
-Neplist = np.array([100, 200, 300, 400, 500, 600])
 Nlayer, dmodel, Nh = 2, 64, 4
 
-tag = 'aqt-ghz-large'
 
-for epi in range(len(Neplist)):
-    Nep = Neplist[epi]
+# Data
+# Ns = 80000
+# Neplist = np.array([100, 200, 400])
+
+Nslist = np.array([40000, 80000, 130000, 200000, 400000])
+Nep = 200
+
+for nsi in range(len(Nslist)):
+    Ns = Nslist[nsi]
+    data_fname = '%s_%i-%i.npy'%(tag, Nq, Ns)
+    # data = ghz.samples(Ns=Ns)
+    # np.save(data_fname, data)
+    data = np.load(data_fname)
+
+    traindata = data[:int(len(data)*split)]
+    testdata = data[int(len(data)*split):]
+
     print('Training with %i epochs'%Nep)
     model = InitializeModel(Nq, Nlayer=Nlayer, dmodel=dmodel, Nh=Nh, Na=Na, dropout=0.0).to(device)
 
@@ -69,4 +76,4 @@ for epi in range(len(Neplist)):
 
     model.to('cpu')
 
-    # torch.save(model, 'mod/%s-%i_%i-%i-%i_%i-%i.mod'%(tag, Nep, Nlayer, dmodel, Nh, Nq, Ns))
+    torch.save(model, '%s-%i_%i-%i-%i_%i-%i.mod'%(tag, Nep, Nlayer, dmodel, Nh, Nq, Ns))
