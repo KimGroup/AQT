@@ -1,4 +1,4 @@
-from aqt import *
+from aqt import AQT
 
 # Hyperparameters
 Nq = 3

@@ -1,4 +1,5 @@
-from povm import *
+import povm as P
+import numpy as np
 from time import time
 
 path = 'noise_2'
@@ -11,7 +12,7 @@ p = 0.3
 
 Nt = 10
 
-povm = POVM('pauli6')
+povm = P.POVM('pauli6')
 Na = povm.Na
 
 # Create states
@@ -39,23 +40,23 @@ Na = povm.Na
 
 # Load saved state
 st0 = np.load('{}/{}_st0.npy'.format(path, Nq))
-st0_sampler = SamplePureState(Nq, povm, st0)
+st0_sampler = P.SamplePureState(Nq, povm, st0)
 
 st1 = np.load('{}/{}_st1.npy'.format(path, Nq))
-st1_sampler = SamplePureState(Nq, povm, st1)
+st1_sampler = P.SamplePureState(Nq, povm, st1)
 
 st2 = np.load('{}/{}_st2.npy'.format(path, Nq))
-st2_sampler = SamplePureState(Nq, povm, st2)
+st2_sampler = P.SamplePureState(Nq, povm, st2)
 
 st3 = np.load('{}/{}_st3.npy'.format(path, Nq))
-st3_sampler = SamplePureState(Nq, povm, st3)
+st3_sampler = P.SamplePureState(Nq, povm, st3)
 
 # Save density matrix
 
-# dm0 = PureSt2DM(st0)
-# dm1 = PureSt2DM(st1)
-# dm2 = PureSt2DM(st2)
-# dm3 = PureSt2DM(st3)
+# dm0 = P.PureSt2DM(st0)
+# dm1 = P.PureSt2DM(st1)
+# dm2 = P.PureSt2DM(st2)
+# dm3 = P.PureSt2DM(st3)
 
 # dm = (1-p)*dm0 + (p/3)*(dm1+dm2+dm3)
 
@@ -82,5 +83,5 @@ for nt in range(Nt):
 
 
     # Save data
-    np.save('{}/{:.1f}/{}_{}_{}.npy'.format(path, p, Nq, Ns, nt), data)
+    # np.save('{}/{:.1f}/{}_{}_{}.npy'.format(path, p, Nq, Ns, nt), data)
 
