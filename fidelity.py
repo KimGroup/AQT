@@ -173,7 +173,7 @@ def GetDMFull(ptab, Nq, povm, Ns=0, samples=[]):
             dm[st2, st1] = np.conj(dm[st1, st2])
     return dm
 
-def plotDM(dm, Nq):
+def plotDM(dm, Nq, figax=None, axis_labels=True):
     xedges = np.arange(0, 2**Nq+1)
     yedges = np.arange(0, 2**Nq+1)
 
@@ -191,8 +191,12 @@ def plotDM(dm, Nq):
         for j in range(2**Nq):
             dz.append(abs(dm[i, j]))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+
+    if figax is None:
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+    else:
+        (fig, ax) = figax
 
 
     ax.bar3d(xpos, ypos, zpos, dx, dy, dz)
@@ -205,8 +209,18 @@ def plotDM(dm, Nq):
     ax.set_ybound(-0.2, 2**Nq+0.2)
     ax.set_zbound(0,0.5)
 
+    if axis_labels:
+        ax.set_xticks([0.5, 2**Nq-0.5])
+        ax.set_xticklabels(['000000', '111111'])
+        ax.tick_params(axis='x', pad=-10, labelsize=12)
+        plt.setp( ax.xaxis.get_majorticklabels(), rotation=52, ha="right" )
 
-#     ax.text(12,1,4.2, s='(a)', fontsize=20,transform=ax.transAxes)
+
+
+        ax.set_yticks([0.5, 2**Nq-0.5])
+        ax.set_yticklabels(['000000', '111111'])
+        ax.tick_params(axis='y', pad=-8, labelsize=12)
+        plt.setp( ax.yaxis.get_majorticklabels(), rotation=-14, ha="left" )
     
     return fig, ax
 
