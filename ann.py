@@ -76,7 +76,25 @@ class Transformer(nn.Module):
             outcomes[ns] = np.array(outcome)
 
         return outcomes
-        
+
+def sample(model, Ns, device):
+    model.to(device)
+
+    Nq = model.Nq
+    outcomes = torch.ones(Ns, Nq+1, dtype=int).to(device)
+    for ns in range(Ns):
+        outcome = outcomes[[ns], :1]
+        for i in range(Nq):
+            log_p = model.generator(model.forward(outcome, Batch.make_std_mask(outcome, 0)))
+            p_tensor = torch.exp(log_p)
+            next_a = torch.multinomial(p_tensor.data[0,0], 1)
+            outcomes[ns, i+1] = next_a
+            outcome = outcomes[[ns], :(i+2)]
+
+    model.to('cpu')
+    outcomes.to('cpu')
+    return outcomes[:, 1:]-3
+
     
 class Generator(nn.Module):
     "Define standard linear + softmax generation step."
@@ -329,10 +347,10 @@ class Batch:
 def LossFunction(x, y):
     # print(torch.tensor(y, dtype=torch.long))
     # loss_NLL = nn.NLLLoss(size_average=False)(x,torch.tensor(y,dtype=torch.long))
-    loss_KL = nn.KLDivLoss(size_average=False)(x,y)
-    loss_L1 = 0.*nn.L1Loss(size_average=False)(x,y)
-    loss_L2 = 0.*nn.MSELoss(size_average=False)(x,y)
-
+    loss_KL = nn.KLDivLoss(reduction='sum')(x,y)
+    loss_L1 = 0.*nn.L1Loss(reduction='sum')(x,y)
+    loss_L2 = 0.*nn.MSELoss(reduction='sum')(x,y)
+    print(loss_KL)
     return loss_KL+loss_L1+loss_L2
 # / LOSS FUNCTION
 
